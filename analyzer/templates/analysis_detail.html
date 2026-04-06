@@ -1,37 +1,62 @@
 {% extends 'base.html' %}
 
 {% block content %}
-<div class="d-flex justify-content-between align-items-center mb-4">
-    <h2>Analysis Report #{{ analysis.id }}</h2>
+
+{% with insights=analysis.insights_json score=analysis.overall_score %}
+
+<div class="d-flex flex-wrap justify-content-between align-items-center mb-4 gap-2">
     <div>
-        <a href="{% url 'export_pdf' analysis.id %}" class="btn btn-primary"><i class="bi bi-file-pdf"></i> Download PDF</a>
-        <a href="{% url 'history' %}" class="btn btn-outline-secondary">Back to History</a>
+        <h2 class="fw-bold mb-1">
+            <i class="bi bi-file-earmark-bar-graph me-2"></i>Analysis Report
+            <span class="badge bg-secondary fw-normal fs-6 ms-2">#{{ analysis.id }}</span>
+        </h2>
+        <p class="text-muted mb-0">{{ analysis.created_at|date:"F j, Y — g:i A" }}</p>
+    </div>
+    <div class="d-flex gap-2">
+        <a href="{% url 'export_pdf' analysis.id %}" class="btn btn-outline-danger">
+            <i class="bi bi-file-pdf me-1"></i> Download PDF
+        </a>
+        <a href="{% url 'history' %}" class="btn btn-outline-secondary">
+            <i class="bi bi-arrow-left me-1"></i> Back
+        </a>
     </div>
 </div>
 
-<div class="row g-4">
+<!-- TOP ROW: Score + Summary -->
+<div class="row g-4 mb-4">
+
+    <!-- Score Donut -->
     <div class="col-md-4">
-        <div class="card shadow-sm border-0 h-100">
-            <div class="card-body text-center">
-                <h5 class="text-muted">Overall Match Score</h5>
-                <div class="position-relative d-inline-block mt-3 w-50">
+        <div class="card shadow-sm border-0 h-100 text-center">
+            <div class="card-body d-flex flex-column align-items-center justify-content-center py-4">
+                <span id="tierBadge" class="badge rounded-pill px-3 py-2 fs-6 mb-3">
+                    <i id="tierIcon" class="bi me-1"></i>
+                    {{ insights.tier|default:"Analysed" }}
+                </span>
+                <div class="position-relative d-inline-block my-2" style="width:150px; height:150px;">
                     <canvas id="scoreChart" data-score="{{ analysis.overall_score|stringformat:'.2f' }}"></canvas>
-                    <div class="position-absolute top-50 start-50 translate-middle h2 fw-bold mb-0">
-                        {{ analysis.overall_score|floatformat:1 }}
+                    <div class="position-absolute top-50 start-50 translate-middle text-center">
+                        <div class="display-6 fw-bold">{{ analysis.overall_score|floatformat:0 }}</div>
+                        <small class="text-muted">/ 100</small>
                     </div>
                 </div>
+                <p class="text-muted small mt-2 mb-0">Overall Match Score</p>
             </div>
         </div>
     </div>
+
+    <!-- Summary -->
     <div class="col-md-8">
-        <div class="card shadow-sm border-0 h-100 bg-light">
-            <div class="card-body">
-                <h5 class="card-title text-primary"><i class="bi bi-chat-left-text"></i> Summary</h5>
-                <p class="lead" id="summaryText">
-                    {% if analysis.insights_json.summary_text %}
-                        {{ analysis.insights_json.summary_text }}
+        <div class="card shadow-sm border-0 h-100">
+            <div class="card-body p-4">
+                <h5 class="card-title fw-bold mb-3">
+                    <i class="bi bi-chat-quote-fill text-primary me-2"></i>AI Recruiter Summary
+                </h5>
+                <p class="lead lh-lg">
+                    {% if insights.summary_text %}
+                        {{ insights.summary_text }}
                     {% else %}
-                        Processing...
+                        Processing your results…
                     {% endif %}
                 </p>
             </div>
@@ -39,80 +64,138 @@
     </div>
 </div>
 
-<div class="row mt-4">
+<!-- SECOND ROW: Strengths + Gaps -->
+<div class="row g-4 mb-4">
+
+    <!-- Matched Skills (Strengths) -->
     <div class="col-md-6">
         <div class="card shadow-sm border-0 h-100">
-            <div class="card-header bg-white border-bottom-0 pt-4 pb-0">
-                <h5 class="card-title"><i class="bi bi-graph-up-arrow text-success"></i> Top Contributing Terms</h5>
-            </div>
-            <div class="card-body">
-                <ul class="list-group list-group-flush">
-                    {% for word, val in analysis.insights_json.top_positives.items %}
-                    <li class="list-group-item d-flex justify-content-between align-items-center border-0 px-2 py-3 rounded mb-2 bg-success bg-opacity-10 text-success">
-                        <span class="fw-bold">{{ word|title }}</span>
-                        <span class="badge bg-success rounded-pill">+{{ val|floatformat:3 }}</span>
-                    </li>
+            <div class="card-body p-4">
+                <h5 class="fw-bold mb-3 text-success">
+                    <i class="bi bi-patch-check-fill me-2"></i>Matched Skills
+                </h5>
+                <div class="d-flex flex-wrap gap-2">
+                    {% for skill in insights.match_buckets.matched %}
+                        <span class="badge bg-success bg-opacity-10 text-success border border-success rounded-pill px-3 py-2">
+                            <i class="bi bi-check2 me-1"></i>{{ skill|title }}
+                        </span>
                     {% empty %}
-                    <li class="list-group-item text-muted border-0">No strong positives detected.</li>
+                        <p class="text-muted">No strong keyword overlaps detected.</p>
                     {% endfor %}
-                </ul>
+                </div>
             </div>
         </div>
     </div>
-    
+
+    <!-- Missing Skills (Gaps) -->
     <div class="col-md-6">
         <div class="card shadow-sm border-0 h-100">
-            <div class="card-header bg-white border-bottom-0 pt-4 pb-0">
-                <h5 class="card-title"><i class="bi bi-exclamation-triangle text-danger"></i> Missing Skills</h5>
-            </div>
-            <div class="card-body">
+            <div class="card-body p-4">
+                <h5 class="fw-bold mb-3 text-danger">
+                    <i class="bi bi-exclamation-triangle-fill me-2"></i>Skill Gaps to Address
+                </h5>
                 <div class="d-flex flex-wrap gap-2">
-                    {% for word in analysis.insights_json.match_buckets.missing %}
-                        <span class="badge bg-danger bg-opacity-10 text-danger border border-danger px-3 py-2 rounded-pill">
-                            {{ word|title }}
+                    {% for word in insights.match_buckets.missing %}
+                        <span class="badge bg-danger bg-opacity-10 text-danger border border-danger rounded-pill px-3 py-2">
+                            <i class="bi bi-x-lg me-1"></i>{{ word|title }}
                         </span>
                     {% empty %}
-                        {% for word in analysis.insights_json.missing_keywords %}
-                            <span class="badge bg-danger bg-opacity-10 text-danger border border-danger px-3 py-2 rounded-pill">
-                                {{ word|title }}
-                            </span>
-                        {% empty %}
-                        <p class="text-muted w-100">Excellent! You seem to cover all extracted required keywords.</p>
-                        {% endfor %}
+                        <div class="text-success d-flex align-items-center gap-2">
+                            <i class="bi bi-stars fs-4"></i>
+                            <p class="mb-0">Excellent! You cover all extracted JD keywords.</p>
+                        </div>
                     {% endfor %}
                 </div>
             </div>
         </div>
     </div>
 </div>
+
+<!-- THIRD ROW: Key Contributing Terms -->
+<div class="row g-4">
+    <div class="col-12">
+        <div class="card shadow-sm border-0">
+            <div class="card-body p-4">
+                <h5 class="fw-bold mb-1">
+                    <i class="bi bi-bar-chart-fill text-primary me-2"></i>Key Contributing Terms
+                </h5>
+                <p class="text-muted small mb-3">Relative contribution of each matched term to your score (based on semantic analysis)</p>
+                <div class="row g-3">
+                    {% for word, pct in insights.top_positives.items %}
+                    <div class="col-md-4">
+                        <div class="d-flex justify-content-between align-items-center mb-1">
+                            <span class="fw-semibold">{{ word|title }}</span>
+                            <small class="text-muted">{{ pct|floatformat:1 }}%</small>
+                        </div>
+                        <div class="progress" style="height: 8px; border-radius: 4px;">
+                            <div class="progress-bar bg-primary" role="progressbar"
+                                 style="width: {{ pct }}%;"
+                                 aria-valuenow="{{ pct }}" aria-valuemin="0" aria-valuemax="100">
+                            </div>
+                        </div>
+                    </div>
+                    {% empty %}
+                        <p class="text-muted">No contributing terms detected.</p>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endwith %}
+
 {% endblock %}
 
 {% block scripts %}
 <script>
-    document.addEventListener("DOMContentLoaded", function() {
+    document.addEventListener("DOMContentLoaded", function () {
         const ctx = document.getElementById('scoreChart');
-        if (ctx) {
-            const score = parseFloat(ctx.getAttribute('data-score')) || 0;
-            new Chart(ctx, {
-                type: 'doughnut',
-                data: {
-                    datasets: [{
-                        data: [score, 100 - score],
-                        backgroundColor: ['#0d6efd', '#e9ecef'],
-                        borderWidth: 0,
-                        cutout: '80%'
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: true,
-                    animation: {
-                        animateScale: true
-                    },
-                    plugins: { tooltip: { enabled: false } }
-                }
-            });
+        if (!ctx) return;
+
+        const score = parseFloat(ctx.getAttribute('data-score')) || 0;
+
+        // Determine tier styling from score
+        let barColor, bgClass, textClass, borderClass, iconClass;
+        if (score >= 80) {
+            barColor = '#198754'; bgClass = 'bg-success'; textClass = 'text-success'; borderClass = 'border-success'; iconClass = 'bi-emoji-laughing-fill';
+        } else if (score >= 60) {
+            barColor = '#0d6efd'; bgClass = 'bg-primary'; textClass = 'text-primary'; borderClass = 'border-primary'; iconClass = 'bi-emoji-smile-fill';
+        } else if (score >= 40) {
+            barColor = '#ffc107'; bgClass = 'bg-warning'; textClass = 'text-warning'; borderClass = 'border-warning'; iconClass = 'bi-emoji-neutral-fill';
+        } else {
+            barColor = '#dc3545'; bgClass = 'bg-danger'; textClass = 'text-danger'; borderClass = 'border-danger'; iconClass = 'bi-emoji-frown-fill';
         }
+
+        // Style tier badge
+        const badge = document.getElementById('tierBadge');
+        const icon = document.getElementById('tierIcon');
+        if (badge) {
+            badge.classList.add(bgClass, 'bg-opacity-10', textClass, 'border', borderClass);
+        }
+        if (icon) {
+            icon.classList.add(iconClass);
+        }
+
+        // Draw donut chart
+        new Chart(ctx, {
+            type: 'doughnut',
+            data: {
+                datasets: [{
+                    data: [score, 100 - score],
+                    backgroundColor: [barColor, '#e9ecef'],
+                    borderWidth: 0,
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: true,
+                cutout: '78%',
+                animation: { animateScale: true },
+                plugins: { tooltip: { enabled: false }, legend: { display: false } }
+            }
+        });
     });
 </script>
 {% endblock %}
+
