@@ -1,0 +1,57 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="row align-items-center py-5">
+    <div class="col-lg-6 text-center text-lg-start">
+        <h1 class="display-4 fw-bold mb-4">Master Your Next Interview with <span class="text-primary">InsightX</span></h1>
+        <p class="lead text-muted mb-5">Upload your resume and the target job description to get instant, AI-powered matching logic, explainable insights, and missing keywords.</p>
+        <a href="{% url 'register' %}" class="btn btn-primary btn-lg px-5 shadow-sm rounded-pill">Get Started Free</a>
+        <a href="{% url 'login' %}" class="btn btn-outline-secondary btn-lg px-5 ms-0 ms-sm-3 mt-3 mt-sm-0 rounded-pill">Sign In</a>
+    </div>
+    <div class="col-lg-6 mt-5 mt-lg-0 text-center">
+        <div class="card shadow-lg border-0 rounded-4 overflow-hidden feature-card">
+            <div class="card-body p-5 bg-gradient-brand text-white">
+                <i class="bi bi-file-earmark-bar-graph display-1 mb-3"></i>
+                <h3 class="fw-bold">Powered by SHAP Explainer</h3>
+                <p>Not a black box. Understand exactly which keywords contributed to your match score.</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row g-4 pt-5 mt-5 border-top">
+    <div class="col-md-4">
+        <div class="card h-100 shadow-sm border-0 bg-transparent">
+            <div class="card-body text-center">
+                <div class="icon-circle bg-primary bg-opacity-10 text-primary mb-3 mx-auto">
+                    <i class="bi bi-speedometer2 fs-3"></i>
+                </div>
+                <h5>Instant Scoring</h5>
+                <p class="text-muted">Asynchronous processing runs deep ML natural language scoring in the background.</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card h-100 shadow-sm border-0 bg-transparent">
+            <div class="card-body text-center">
+                <div class="icon-circle bg-success bg-opacity-10 text-success mb-3 mx-auto">
+                    <i class="bi bi-file-earmark-check fs-3"></i>
+                </div>
+                <h5>Missing Skills Gaps</h5>
+                <p class="text-muted">Target exactly what terms you lack based on the JD template library.</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card h-100 shadow-sm border-0 bg-transparent">
+            <div class="card-body text-center">
+                <div class="icon-circle bg-warning bg-opacity-10 text-warning mb-3 mx-auto">
+                    <i class="bi bi-clipboard-data fs-3"></i>
+                </div>
+                <h5>Track Over Time</h5>
+                <p class="text-muted">Use comparison tools and history to watch your resume score improve.</p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

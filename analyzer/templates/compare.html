@@ -1,0 +1,74 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2>Comparison Results</h2>
+    <a href="{% url 'compare' %}" class="btn btn-outline-secondary">New Comparison</a>
+</div>
+
+<div class="row g-4 text-center">
+    <div class="col-md-4">
+        <div class="card border-0 shadow-sm bg-light">
+            <div class="card-body">
+                <h5 class="text-muted">Baseline</h5>
+                <h2 class="fw-bold">{{ base.overall_score|floatformat:1 }}</h2>
+                <small class="text-muted">{{ base.created_at|date:"M d, Y" }}</small>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card border-0 shadow-sm bg-primary text-white">
+            <div class="card-body">
+                <h5 class="text-white-50">Score Delta</h5>
+                <h1 class="fw-bold display-4">
+                    {% if score_delta > 0 %}+{% endif %}{{ score_delta|floatformat:1 }}
+                </h1>
+                <small>Overall Improvement</small>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card border-0 shadow-sm bg-light">
+            <div class="card-body">
+                <h5 class="text-muted">Target</h5>
+                <h2 class="fw-bold">{{ target.overall_score|floatformat:1 }}</h2>
+                <small class="text-muted">{{ target.created_at|date:"M d, Y" }}</small>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="card shadow-sm border-0 mt-5">
+    <div class="card-header bg-white pt-4">
+        <h4 class="mb-0">Missing Keywords Progression</h4>
+    </div>
+    <div class="card-body p-0">
+        <div class="row g-0">
+            <div class="col-md-6 border-end p-4">
+                <h5 class="text-danger mb-3">Baseline Gaps</h5>
+                <ul class="list-unstyled">
+                    {% for word in base.insights_json.missing_keywords %}
+                    <li class="mb-2"><i class="bi bi-x-circle text-danger me-2"></i> {{ word|title }}</li>
+                    {% empty %}
+                    <p class="text-muted">None</p>
+                    {% endfor %}
+                </ul>
+            </div>
+            <div class="col-md-6 p-4">
+                <h5 class="text-success mb-3">Target Remaining Gaps</h5>
+                <ul class="list-unstyled">
+                    {% for word in target.insights_json.missing_keywords %}
+                        {% if word not in base.insights_json.missing_keywords %}
+                            <li class="mb-2"><i class="bi bi-plus-circle text-warning me-2"></i> {{ word|title }} <small class="text-muted">(New gap)</small></li>
+                        {% else %}
+                            <li class="mb-2"><i class="bi bi-dash-circle text-danger me-2"></i> {{ word|title }} <small class="text-muted">(Still missing)</small></li>
+                        {% endif %}
+                    {% empty %}
+                        <p class="text-success"><i class="bi bi-check-circle-fill"></i> You have closed all recognized word gaps!</p>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

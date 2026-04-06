@@ -1,0 +1,37 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<h2 class="mb-4">Compare Analyses</h2>
+<p class="text-muted">Select two completed analyses to see your improvement delta.</p>
+
+<div class="card shadow-sm border-0">
+    <div class="card-body">
+        <form method="POST" action="{% url 'compare' %}">
+            {% csrf_token %}
+            <div class="row g-4">
+                <div class="col-md-6">
+                    <label class="form-label fw-bold text-primary">Baseline (Older)</label>
+                    <select name="base_id" class="form-select form-select-lg" required>
+                        <option value="">Choose an analysis...</option>
+                        {% for rec in records %}
+                        <option value="{{ rec.id }}">{{ rec.created_at|date:"Y-m-d H:i" }} | Score: {{ rec.overall_score|floatformat:1 }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label fw-bold text-success">Target (Newer)</label>
+                    <select name="target_id" class="form-select form-select-lg" required>
+                        <option value="">Choose an analysis...</option>
+                        {% for rec in records %}
+                        <option value="{{ rec.id }}">{{ rec.created_at|date:"Y-m-d H:i" }} | Score: {{ rec.overall_score|floatformat:1 }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+            <div class="mt-4 text-end">
+                <button type="submit" class="btn btn-primary px-4"><i class="bi bi-arrow-left-right"></i> Compare Now</button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

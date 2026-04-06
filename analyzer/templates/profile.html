@@ -1,0 +1,45 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="row pt-4">
+    <div class="col-md-4">
+        <div class="card shadow-sm border-0 text-center py-5">
+            <div class="card-body">
+                <div class="display-1 text-primary mb-3">
+                    <i class="bi bi-person-circle"></i>
+                </div>
+                <h3>{{ user.username }}</h3>
+                <p class="text-muted">{{ user.email }}</p>
+                <div class="mt-4">
+                    <span class="badge bg-primary fs-6">{{ total_analyses }}</span><br>
+                    <small class="text-muted fw-bold">Total Analyses</small>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-8">
+        <div class="card shadow-sm border-0 h-100">
+            <div class="card-header bg-white pt-4 pb-0 border-bottom-0">
+                <h5>Account Settings</h5>
+            </div>
+            <div class="card-body">
+                <form>
+                    <div class="mb-3">
+                        <label class="form-label">Username</label>
+                        <input type="text" class="form-control" value="{{ user.username }}" disabled>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Email</label>
+                        <input type="email" class="form-control" value="{{ user.email }}" disabled>
+                    </div>
+                    <div class="form-check form-switch mt-4">
+                        <input class="form-check-input" type="checkbox" id="emailNotifications">
+                        <label class="form-check-label" for="emailNotifications">Receive email reports from analyses</label>
+                    </div>
+                    <button type="button" class="btn btn-primary mt-4 disabled">Update Profile (Coming Soon)</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

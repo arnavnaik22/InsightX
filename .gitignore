@@ -1,0 +1,65 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.so
+
+# Virtual environments
+.env
+.venv
+venv/
+env/
+ENV/
+*.env
+*.venv
+
+# IDE / Editor
+.vscode/
+.idea/
+*.swp
+*.swo
+*.DS_Store
+
+# Django stuff
+*.log
+staticfiles/
+media/
+db.sqlite3
+local_settings.py
+
+# Migrations cache (keep actual migrations)
+*/migrations/__pycache__/
+
+# Celery
+celerybeat-schedule
+celerybeat.pid
+
+# Redis dumps (if any)
+dump.rdb
+
+# Coverage / testing
+htmlcov/
+.tox/
+.nox/
+.coverage
+*.cover
+coverage.xml
+pytest_cache/
+.pytest_cache/
+
+# Node / frontend (if introduced later)
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# ML artifacts (large model files, can be stored elsewhere or downloaded)
+*.pkl
+*.joblib
+*.h5
+artifacts/
+models/
+path/to/bigfile.pkl
+analyzer/ml/raw_data/postings.csv
+analyzer/ml/raw_data/UpdatedResumeDataSet.csv

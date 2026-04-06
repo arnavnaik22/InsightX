@@ -1,0 +1,80 @@
+.bg-gradient-brand {
+    background: linear-gradient(135deg, #0d6efd, #6610f2);
+}
+
+.feature-card {
+    transition: transform 0.3s;
+}
+
+.feature-card:hover {
+    transform: translateY(-10px);
+}
+
+.icon-circle {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.border-dashed {
+    border-style: dashed !important;
+    border-width: 2px !important;
+}
+
+.transition-all {
+    transition: all 0.3s ease;
+}
+
+.cursor-pointer {
+    cursor: pointer;
+}
+
+/* Dark Mode Implementation */
+.bg-dark-mode {
+    background-color: #121212 !important;
+    color: #e0e0e0 !important;
+}
+
+.bg-dark-mode .card, .bg-dark-mode .bg-light {
+    background-color: #1e1e1e !important;
+    border-color: #333 !important;
+    color: #e0e0e0 !important;
+}
+
+.bg-dark-mode .card-header, 
+.bg-dark-mode .card-footer {
+    background-color: #2a2a2a !important;
+    border-color: #444 !important;
+}
+
+.bg-dark-mode .table {
+    color: #f8f9fa !important;
+}
+
+.bg-dark-mode .table-light th {
+    background-color: #2a2a2a !important;
+    border-color: #444 !important;
+    color: #e0e0e0 !important;
+}
+
+.bg-dark-mode input, .bg-dark-mode textarea, .bg-dark-mode select {
+    background-color: #2a2a2a !important;
+    color: #fff !important;
+    border-color: #444 !important;
+}
+
+.bg-dark-mode .list-group-item {
+    background-color: transparent !important;
+    color: #e0e0e0 !important;
+}
+
+.bg-dark-mode .badge.bg-success.bg-opacity-10 {
+    background-color: rgba(25, 135, 84, 0.2) !important;
+}
+
+.bg-dark-mode .badge.bg-danger.bg-opacity-10 {
+    background-color: rgba(220, 53, 69, 0.2) !important;
+}
