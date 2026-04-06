@@ -164,8 +164,41 @@ def compare_view(request):
 
 @login_required
 def profile_view(request):
+    records = AnalysisRecord.objects.filter(
+        user=request.user, status='COMPLETED'
+    ).order_by('created_at')
+
     total = AnalysisRecord.objects.filter(user=request.user).count()
-    return render(request, 'profile.html', {'total_analyses': total, 'user': request.user})
+
+    # Score trend (last 20 completed)
+    trend = list(records.values('created_at', 'overall_score').order_by('-created_at')[:20])
+    trend.reverse()
+    trend_labels = [r['created_at'].strftime('%b %d') for r in trend]
+    trend_scores = [float(r['overall_score']) if r['overall_score'] else 0 for r in trend]
+
+    # Score distribution buckets
+    dist = {'0-25': 0, '26-50': 0, '51-75': 0, '76-100': 0}
+    for r in records:
+        s = float(r.overall_score) if r.overall_score else 0
+        if s <= 25:   dist['0-25'] += 1
+        elif s <= 50: dist['26-50'] += 1
+        elif s <= 75: dist['51-75'] += 1
+        else:         dist['76-100'] += 1
+
+    scores = [float(r.overall_score) for r in records if r.overall_score]
+    avg_score = round(sum(scores) / len(scores), 1) if scores else 0
+    best_score = round(max(scores), 1) if scores else 0
+
+    return render(request, 'profile.html', {
+        'total_analyses': total,
+        'user': request.user,
+        'avg_score': avg_score,
+        'best_score': best_score,
+        'trend_labels': json.dumps(trend_labels),
+        'trend_scores': json.dumps(trend_scores),
+        'dist_labels': json.dumps(list(dist.keys())),
+        'dist_values': json.dumps(list(dist.values())),
+    })
 
 def is_staff(user):
     return user.is_staff

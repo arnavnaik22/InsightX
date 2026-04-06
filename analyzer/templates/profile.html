@@ -1,45 +1,215 @@
 {% extends 'base.html' %}
 
 {% block content %}
-<div class="row pt-4">
-    <div class="col-md-4">
-        <div class="card shadow-sm border-0 text-center py-5">
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2 class="fw-bold"><i class="bi bi-person-circle me-2"></i>My Profile</h2>
+</div>
+
+<!-- Stat Cards Row -->
+<div class="row g-4 mb-4">
+    <div class="col-6 col-md-3">
+        <div class="card border-0 shadow-sm text-center py-3">
             <div class="card-body">
-                <div class="display-1 text-primary mb-3">
-                    <i class="bi bi-person-circle"></i>
-                </div>
-                <h3>{{ user.username }}</h3>
-                <p class="text-muted">{{ user.email }}</p>
-                <div class="mt-4">
-                    <span class="badge bg-primary fs-6">{{ total_analyses }}</span><br>
-                    <small class="text-muted fw-bold">Total Analyses</small>
-                </div>
+                <div class="display-6 fw-bold text-primary">{{ total_analyses }}</div>
+                <small class="text-muted">Total Analyses</small>
             </div>
         </div>
     </div>
-    <div class="col-md-8">
-        <div class="card shadow-sm border-0 h-100">
-            <div class="card-header bg-white pt-4 pb-0 border-bottom-0">
-                <h5>Account Settings</h5>
-            </div>
+    <div class="col-6 col-md-3">
+        <div class="card border-0 shadow-sm text-center py-3">
             <div class="card-body">
-                <form>
-                    <div class="mb-3">
-                        <label class="form-label">Username</label>
-                        <input type="text" class="form-control" value="{{ user.username }}" disabled>
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label">Email</label>
-                        <input type="email" class="form-control" value="{{ user.email }}" disabled>
-                    </div>
-                    <div class="form-check form-switch mt-4">
-                        <input class="form-check-input" type="checkbox" id="emailNotifications">
-                        <label class="form-check-label" for="emailNotifications">Receive email reports from analyses</label>
-                    </div>
-                    <button type="button" class="btn btn-primary mt-4 disabled">Update Profile (Coming Soon)</button>
-                </form>
+                <div class="display-6 fw-bold text-success">{{ avg_score }}</div>
+                <small class="text-muted">Avg Score</small>
+            </div>
+        </div>
+    </div>
+    <div class="col-6 col-md-3">
+        <div class="card border-0 shadow-sm text-center py-3">
+            <div class="card-body">
+                <div class="display-6 fw-bold text-warning">{{ best_score }}</div>
+                <small class="text-muted">Best Score</small>
+            </div>
+        </div>
+    </div>
+    <div class="col-6 col-md-3">
+        <div class="card border-0 shadow-sm text-center py-3">
+            <div class="card-body">
+                <div class="display-6 fw-bold text-secondary">
+                    <i class="bi bi-person-fill"></i>
+                </div>
+                <small class="text-muted">{{ user.username }}</small>
             </div>
         </div>
     </div>
 </div>
+
+<!-- Charts Row -->
+<div class="row g-4 mb-4">
+
+    <!-- Score Trend Line Chart -->
+    <div class="col-md-8">
+        <div class="card border-0 shadow-sm h-100">
+            <div class="card-body p-4">
+                <h5 class="fw-bold mb-1">
+                    <i class="bi bi-graph-up-arrow text-primary me-2"></i>Score Trend
+                </h5>
+                <p class="text-muted small mb-3">Your last {{ trend_labels|length }} completed analyses</p>
+                {% if total_analyses > 0 %}
+                <canvas id="trendChart" style="max-height: 240px;"></canvas>
+                {% else %}
+                <div class="text-center text-muted py-5">
+                    <i class="bi bi-bar-chart display-3 opacity-25 d-block mb-2"></i>
+                    No data yet. Complete an analysis to see your trend.
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Score Distribution Bar Chart -->
+    <div class="col-md-4">
+        <div class="card border-0 shadow-sm h-100">
+            <div class="card-body p-4">
+                <h5 class="fw-bold mb-1">
+                    <i class="bi bi-bar-chart-fill text-success me-2"></i>Score Distribution
+                </h5>
+                <p class="text-muted small mb-3">Breakdown by score range</p>
+                {% if total_analyses > 0 %}
+                <canvas id="distChart" style="max-height: 240px;"></canvas>
+                {% else %}
+                <div class="text-center text-muted py-5">
+                    <i class="bi bi-pie-chart display-3 opacity-25 d-block mb-2"></i>
+                    No data yet.
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<!-- Account Info -->
+<div class="row g-4">
+    <div class="col-md-6">
+        <div class="card border-0 shadow-sm">
+            <div class="card-body p-4">
+                <h5 class="fw-bold mb-3"><i class="bi bi-person-gear me-2"></i>Account Info</h5>
+                <dl class="row mb-0">
+                    <dt class="col-5 text-muted fw-normal">Username</dt>
+                    <dd class="col-7 fw-semibold">{{ user.username }}</dd>
+                    <dt class="col-5 text-muted fw-normal">Email</dt>
+                    <dd class="col-7 fw-semibold">{{ user.email|default:"—" }}</dd>
+                    <dt class="col-5 text-muted fw-normal">Joined</dt>
+                    <dd class="col-7 fw-semibold">{{ user.date_joined|date:"F j, Y" }}</dd>
+                    <dt class="col-5 text-muted fw-normal">Role</dt>
+                    <dd class="col-7">
+                        {% if user.is_superuser %}
+                            <span class="badge bg-danger">Superuser</span>
+                        {% elif user.is_staff %}
+                            <span class="badge bg-warning text-dark">Staff</span>
+                        {% else %}
+                            <span class="badge bg-secondary">User</span>
+                        {% endif %}
+                    </dd>
+                </dl>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="card border-0 shadow-sm">
+            <div class="card-body p-4">
+                <h5 class="fw-bold mb-3"><i class="bi bi-lightning-charge me-2 text-warning"></i>Quick Actions</h5>
+                <div class="d-grid gap-2">
+                    <a href="{% url 'analyze' %}" class="btn btn-primary">
+                        <i class="bi bi-plus-circle me-2"></i>New Analysis
+                    </a>
+                    <a href="{% url 'history' %}" class="btn btn-outline-secondary">
+                        <i class="bi bi-clock-history me-2"></i>View History
+                    </a>
+                    <a href="{% url 'export_csv' %}" class="btn btn-outline-success">
+                        <i class="bi bi-download me-2"></i>Export CSV
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const trendLabels = {{ trend_labels|safe }};
+    const trendScores = {{ trend_scores|safe }};
+    const distLabels  = {{ dist_labels|safe }};
+    const distValues  = {{ dist_values|safe }};
+
+    // Score Trend Line Chart
+    const trendCtx = document.getElementById('trendChart');
+    if (trendCtx && trendLabels.length > 0) {
+        new Chart(trendCtx, {
+            type: 'line',
+            data: {
+                labels: trendLabels,
+                datasets: [{
+                    label: 'Score',
+                    data: trendScores,
+                    borderColor: '#0d6efd',
+                    backgroundColor: 'rgba(13,110,253,0.08)',
+                    tension: 0.4,
+                    fill: true,
+                    pointBackgroundColor: '#0d6efd',
+                    pointRadius: 5,
+                    pointHoverRadius: 7,
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: true,
+                plugins: { legend: { display: false } },
+                scales: {
+                    y: {
+                        min: 0, max: 100,
+                        ticks: { stepSize: 20 },
+                        grid: { color: 'rgba(0,0,0,0.05)' }
+                    },
+                    x: { grid: { display: false } }
+                }
+            }
+        });
+    }
+
+    // Score Distribution Bar Chart
+    const distCtx = document.getElementById('distChart');
+    if (distCtx && distValues.some(v => v > 0)) {
+        new Chart(distCtx, {
+            type: 'bar',
+            data: {
+                labels: distLabels,
+                datasets: [{
+                    label: 'Analyses',
+                    data: distValues,
+                    backgroundColor: ['#dc3545', '#ffc107', '#0d6efd', '#198754'],
+                    borderRadius: 6,
+                    borderSkipped: false,
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: true,
+                plugins: { legend: { display: false } },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: { stepSize: 1, precision: 0 },
+                        grid: { color: 'rgba(0,0,0,0.05)' }
+                    },
+                    x: { grid: { display: false } }
+                }
+            }
+        });
+    }
+});
+</script>
 {% endblock %}
