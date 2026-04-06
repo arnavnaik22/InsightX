@@ -24,9 +24,11 @@ $(document).ready(function() {
     function applyDark(state) {
         if (state) {
             body.addClass('bg-dark-mode');
+            $('html').attr('data-bs-theme', 'dark');
             toggleBtn.html('<i class="bi bi-sun"></i>');
         } else {
             body.removeClass('bg-dark-mode');
+            $('html').removeAttr('data-bs-theme');
             toggleBtn.html('<i class="bi bi-moon"></i>');
         }
     }

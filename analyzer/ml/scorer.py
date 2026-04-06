@@ -16,26 +16,38 @@ class ScorerEngine:
             self.is_trained = False
 
     def score_resume(self, jd_text: str, res_text: str) -> float:
-        """Calculates the semantic match probability with conservative scaling."""
-        if not self.is_trained: 
-            return 0.0
+        """Calculates a robust score using Semantic Cosine Similarity and Exact Keyword Matching."""
         
-        # Internally filters via nlp_engine.get_embeddings
+        # 1. Semantic Match via SBERT embeddings
         jd_vec = self.nlp_engine.get_embeddings(jd_text)
         res_vec = self.nlp_engine.get_embeddings(res_text)
         
-        # Feature generation: Element-wise multiplication of vectors
-        features = (jd_vec * res_vec).reshape(1, -1)
+        # Calculate Cosine Similarity
+        norm_jd = np.linalg.norm(jd_vec)
+        norm_res = np.linalg.norm(res_vec)
         
-        # Get probability from the Logistic Regression model
-        prob = self.model.predict_proba(features)[0][1]
+        if norm_jd == 0 or norm_res == 0:
+            cosine_sim = 0.0
+        else:
+            cosine_sim = np.dot(jd_vec, res_vec) / (norm_jd * norm_res)
+            
+        # Map SBERT score (typically 0.1 - 0.7 for resumes) to a 0-100 scale
+        semantic_score = max(0, min((cosine_sim * 100) * 1.3, 100))
         
-        # SCALING ADJUSTMENT:
-        # We lowered the multiplier from 140 to 110. 
-        # This penalizes generic matches and rewards specific skill overlap.
-        final_score = float(min(prob * 110, 99.0))
+        # 2. Hard Keyword Match
+        jd_terms = set(self.nlp_engine.extract_tech_terms(jd_text).split())
+        res_terms = set(self.nlp_engine.extract_tech_terms(res_text).split())
         
-        return round(final_score, 1)
+        if len(jd_terms) == 0:
+            keyword_score = semantic_score # Fallback if JD has no extractable keywords
+        else:
+            overlap = len(jd_terms.intersection(res_terms))
+            keyword_score = (overlap / len(jd_terms)) * 100
+            
+        # 3. Final Blended Score (60% Semantic understanding, 40% exact keyword match)
+        final_score = (semantic_score * 0.6) + (keyword_score * 0.4)
+        
+        return round(float(final_score), 1)
 
     def get_feature_vector(self, jd_text: str, res_text: str):
         """Helper for the SHAP explainer to get the raw features."""
