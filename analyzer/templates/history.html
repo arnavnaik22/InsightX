@@ -3,7 +3,40 @@
 {% block content %}
 <div class="d-flex justify-content-between align-items-center mb-4">
     <h2>Analysis History</h2>
-    <a href="{% url 'export_csv' %}" class="btn btn-outline-success"><i class="bi bi-file-earmark-spreadsheet"></i> Export CSV</a>
+    <div class="d-flex gap-2">
+        <a href="{% url 'export_csv' %}" class="btn btn-outline-success">
+            <i class="bi bi-file-earmark-spreadsheet"></i> Export CSV
+        </a>
+        <button type="button" class="btn btn-outline-danger" data-bs-toggle="modal" data-bs-target="#clearHistoryModal">
+            <i class="bi bi-trash3"></i> Clear History
+        </button>
+    </div>
+</div>
+
+<!-- Confirmation Modal -->
+<div class="modal fade" id="clearHistoryModal" tabindex="-1" aria-labelledby="clearHistoryModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow">
+            <div class="modal-header border-0 pb-0">
+                <h5 class="modal-title fw-bold" id="clearHistoryModalLabel">
+                    <i class="bi bi-exclamation-triangle-fill text-danger me-2"></i>Clear All History?
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body text-muted">
+                This will permanently delete <strong>all your analysis records</strong>. This action cannot be undone.
+            </div>
+            <div class="modal-footer border-0">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <form method="POST" action="{% url 'clear_history' %}">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-danger">
+                        <i class="bi bi-trash3-fill me-1"></i>Yes, Delete Everything
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
 </div>
 
 <div class="card shadow-sm border-0 mb-4">

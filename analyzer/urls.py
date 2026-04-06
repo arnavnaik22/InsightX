@@ -20,6 +20,7 @@ urlpatterns = [
     # Export Routes
     path('export/pdf/<int:pk>/', views.export_pdf_view, name='export_pdf'),
     path('export/csv/', views.export_history_csv_view, name='export_csv'),
+    path('history/clear/', views.clear_history_view, name='clear_history'),
     
     # Async Status Polling
     path('analyze/status/<str:task_id>/', views.analyze_status_view, name='analyze_status'),

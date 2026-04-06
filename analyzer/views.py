@@ -213,3 +213,11 @@ def export_pdf_view(request, pk):
     p.showPage()
     p.save()
     return response
+
+@login_required
+def clear_history_view(request):
+    if request.method == 'POST':
+        deleted_count, _ = AnalysisRecord.objects.filter(user=request.user).delete()
+        return redirect('history')
+    # GET: show a confirmation page (or we handle via modal — just redirect if accessed directly)
+    return redirect('history')
