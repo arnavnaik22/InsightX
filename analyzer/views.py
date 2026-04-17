@@ -12,7 +12,6 @@ from .ml.explainer import InsightExplainer
 import csv
 import json
 
-# Fallback synchronous engines
 scorer_engine = None
 explainer = None
 
@@ -97,7 +96,6 @@ def analyze_view(request):
             record.status = 'COMPLETED'
             record.save()
             
-            # For AJAX callers return JSON; for plain form POST redirect
             is_ajax = request.headers.get('X-Requested-With') == 'XMLHttpRequest'
             if is_ajax:
                 return JsonResponse({
@@ -170,13 +168,11 @@ def profile_view(request):
 
     total = AnalysisRecord.objects.filter(user=request.user).count()
 
-    # Score trend (last 20 completed)
     trend = list(records.values('created_at', 'overall_score').order_by('-created_at')[:20])
     trend.reverse()
     trend_labels = [r['created_at'].strftime('%b %d') for r in trend]
     trend_scores = [float(r['overall_score']) if r['overall_score'] else 0 for r in trend]
 
-    # Score distribution buckets
     dist = {'0-25': 0, '26-50': 0, '51-75': 0, '76-100': 0}
     for r in records:
         s = float(r.overall_score) if r.overall_score else 0
